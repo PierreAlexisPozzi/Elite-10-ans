@@ -125,7 +125,7 @@ footer .foot-name{font-family:var(--font-h);font-weight:700;letter-spacing:.08em
   <div class="eyebrow">NOTRE HISTOIRE</div>
   <h2>De la fac au terrain</h2>
   <div class="scene-wrap" id="jSceneWrap">
-    <canvas id="journey" role="img" aria-label="Animation : les 11 membres du Club montent dans un métro, voyagent en train, en bus de nuit puis en avion, et descendent du van devant la maison du week-end."></canvas>
+    <canvas id="journey" role="img" aria-label="Animation : les 11 membres du Club montent dans le métro à Lille (Beffroi, Déesse de la Grand’Place, Tour de Lille, maisons flamandes), voyagent en train, en bus de nuit puis en avion, et descendent du van devant la maison du week-end."></canvas>
     <div class="j-ctrl">
       <button id="jReplay" type="button" aria-label="Rejouer">↺</button>
       <button id="jPlay" type="button" aria-label="Pause">❚❚</button>
@@ -366,7 +366,36 @@ function passenger(c,clip,hx,hy,s,dir,t,i){
    SCÈNE 1 — Le quai : la bande arrive et monte dans le métro
    ========================================================================== */
 const R1=rng(11), SKY1=[];
-for(let x=-20;x<W+40;){ const w=40+R1()*55; SKY1.push({x,w,h:80+R1()*170}); x+=w+4+R1()*16; }
+for(let x=-20;x<W+40;){ const w=40+R1()*55; SKY1.push({x,w,h:50+R1()*80}); x+=w+4+R1()*16; }
+const GABLES=[]; for(let x=-12;x<W+40;){ const w=34+R1()*16; GABLES.push({x,w,h:95+R1()*45,c:['#7a4058','#8d5468','#5c3a6a','#6e4a72'][Math.floor(R1()*4)]}); x+=w+2; }
+
+/* --- Lille : silhouettes emblématiques --- */
+function gable(g,base){ const {x,w,h}=g; ctx.fillStyle=g.c; ctx.fillRect(x,base-h,w,h);
+  for(let k=0;k<4;k++) ctx.fillRect(x+k*w/8,base-h-(k+1)*9,w-k*w/4,9.5);   // pignon à pas de moineau
+  ctx.fillStyle='rgba(255,217,138,.75)'; for(let yy=base-h+14;yy<base-14;yy+=22) for(let xx=x+7;xx<x+w-9;xx+=12) if(((xx*5+yy*3)|0)%3) ctx.fillRect(xx,yy,5,9);
+  ctx.fillStyle='rgba(255,217,138,.6)'; ctx.fillRect(x+w/2-3,base-h-24,6,8); }
+function beffroi(cx,base){ const c='#6b3a52', d='#4d2a40';
+  ctx.fillStyle=d; ctx.fillRect(cx-95,base-70,190,70);                       // hôtel de ville
+  ctx.fillStyle='rgba(255,217,138,.7)'; for(let xx=cx-85;xx<cx+85;xx+=16) if(Math.abs(xx-cx)>34) ctx.fillRect(xx,base-55,7,14);
+  ctx.fillStyle=c; ctx.fillRect(cx-30,base-262,60,262);                      // fût en brique
+  ctx.fillStyle=d; ctx.fillRect(cx-30,base-262,6,262); ctx.fillRect(cx+24,base-262,6,262);
+  ctx.fillStyle='rgba(255,217,138,.8)'; for(let yy=base-180;yy<base-80;yy+=34){ ctx.fillRect(cx-10,yy,5,20); ctx.fillRect(cx+5,yy,5,20); }
+  [-1,1].forEach(sx=>{ const tx=cx+sx*29-5; ctx.fillStyle=c; ctx.fillRect(tx,base-288,10,30); ctx.beginPath(); ctx.moveTo(tx-2,base-288); ctx.lineTo(tx+5,base-306); ctx.lineTo(tx+12,base-288); ctx.closePath(); ctx.fill(); });
+  circle(cx,base-228,14); ctx.fillStyle='#ffe7a8'; ctx.fill(); glow(cx,base-228,34,'#ffe7a8',.6);   // horloge
+  line([cx,base-228,cx,base-238],2,d); line([cx,base-228,cx+7,base-226],2,d);
+  ctx.fillStyle=c; ctx.fillRect(cx-18,base-306,36,46);                        // lanterne
+  ctx.fillStyle='rgba(255,217,138,.85)'; [-10,3].forEach(o=>{ rrect(cx+o,base-298,7,22,3); ctx.fill(); });
+  ctx.fillStyle=d; ctx.beginPath(); ctx.moveTo(cx-20,base-306); ctx.quadraticCurveTo(cx,base-330,cx,base-348); ctx.quadraticCurveTo(cx,base-330,cx+20,base-306); ctx.closePath(); ctx.fill();
+  line([cx,base-348,cx,base-360],2,d); ctx.fillStyle='#d9b35b'; circle(cx,base-362,3.5); ctx.fill(); }
+function deesse(cx,base){ const d='#4d2a40';
+  ctx.fillStyle=d; ctx.fillRect(cx-16,base-40,32,40); ctx.fillRect(cx-6,base-232,12,195); ctx.fillRect(cx-11,base-238,22,8);
+  ctx.fillStyle='#d9b35b'; ctx.beginPath(); ctx.moveTo(cx-8,base-238); ctx.lineTo(cx,base-262); ctx.lineTo(cx+8,base-238); ctx.closePath(); ctx.fill();
+  circle(cx,base-266,4.5); ctx.fill(); line([cx+2,base-256,cx+12,base-272],2.5,'#d9b35b'); glow(cx+12,base-274,10,'#ffcf6b',.9); }
+function tourDeLille(base){ ctx.beginPath(); ctx.moveTo(792,base); ctx.lineTo(792,152); ctx.lineTo(758,152); ctx.lineTo(758,104); ctx.lineTo(872,104); ctx.lineTo(872,base); ctx.closePath();
+  ctx.fillStyle=vgrad(104,base,['#56659a','#3a3f72']); ctx.fill(); ctx.save(); ctx.clip();
+  ctx.strokeStyle='rgba(255,255,255,.12)'; ctx.lineWidth=1; for(let y=110;y<base;y+=10){ ctx.beginPath(); ctx.moveTo(750,y); ctx.lineTo(880,y); ctx.stroke(); }
+  ctx.fillStyle='rgba(255,217,138,.7)'; for(let y=114;y<base;y+=20) for(let x=764;x<870;x+=14) if(((x*3+y)|0)%4===0) ctx.fillRect(x,y,8,5);
+  ctx.fillStyle='rgba(255,180,140,.25)'; ctx.fillRect(850,104,22,300); ctx.restore(); }
 const TRAM_X=250, TRAM_Y=395, DOOR_L=150, DOOR_W=86;
 const TRAM_WIN=[[20,118],[262,352],[372,462],[482,572]];
 const TRAM_SLOTS=[548,518,488,442,412,382,332,302,272,90,50]; // place dans l'ordre d'embarquement (avant d'abord)
@@ -375,8 +404,6 @@ const board = CREW.map((c,i)=>{ const x0=-40-i*60, door=TRAM_X+DOOR_L+DOOR_W/2; 
 
 function drawTram(ox,t,doorOpen,boardedUntil,moving){
   ctx.save(); ctx.translate(ox,TRAM_Y);
-  // pantographe
-  line([300,-178,336,-246,372,-178],3,'#2a2a38'); line([318,-246,356,-246],3,'#2a2a38');
   // caisse
   ctx.beginPath(); ctx.moveTo(14,-178); ctx.lineTo(560,-178); ctx.quadraticCurveTo(650,-178,650,-100); ctx.lineTo(650,-14); ctx.quadraticCurveTo(650,0,636,0); ctx.lineTo(14,0); ctx.quadraticCurveTo(0,0,0,-14); ctx.lineTo(0,-164); ctx.quadraticCurveTo(0,-178,14,-178); ctx.closePath();
   ctx.fillStyle=vgrad(-178,0,['#ffffff','#dfe4f0']); ctx.fill();
@@ -414,15 +441,15 @@ function sceneStation(t){
   // ciel d'aube
   ctx.fillStyle=vgrad(0,400,['#241f5c','#8d4384','#ff9d74','#ffd9a0']); ctx.fillRect(0,0,W,H);
   glow(720,330,260,'#fff0c0',.9); circle(720,330,46); ctx.fillStyle='#fff3cf'; ctx.fill();
-  SKY1.forEach((b,i)=>{ ctx.fillStyle=i%2?'#3c2f66':'#47367a'; ctx.fillRect(b.x,395-b.h,b.w,b.h);
-    ctx.fillStyle='#ffd98a'; for(let yy=395-b.h+12;yy<380;yy+=18) for(let xx=b.x+7;xx<b.x+b.w-8;xx+=13) if(((xx*7+yy*13+i)|0)%5===0) ctx.fillRect(xx,yy,5,7); });
-  // caténaire
-  line([0,150,W,150],2,'#1b1830');
+  SKY1.forEach((b,i)=>{ ctx.fillStyle=i%2?'#3c2f66':'#47367a'; ctx.fillRect(b.x,395-120-b.h,b.w,b.h+120); });
+  // Lille : Tour de Lille, Déesse de la Grand'Place, Beffroi, maisons flamandes du Vieux-Lille
+  tourDeLille(395); deesse(650,395); beffroi(130,395);
+  GABLES.forEach(g=>gable(g,395));
   // marquise de la station
   ctx.fillStyle='#1a1830'; ctx.fillRect(0,0,W,24); ctx.fillStyle='#33f7e6'; for(let x=30;x<W;x+=120) ctx.fillRect(x,22,60,3);
-  line([90,24,90,46],2,'#1a1830'); line([300,24,300,46],2,'#1a1830');
-  rrect(60,46,270,44,8); ctx.fillStyle='#0d0e1f'; ctx.fill(); ctx.strokeStyle='#33f7e6'; ctx.lineWidth=2; ctx.stroke();
-  ctx.fillStyle='#33f7e6'; ctx.font='700 21px Rajdhani, sans-serif'; ctx.textAlign='center'; ctx.textBaseline='middle'; ctx.fillText('DÉPART  →  SAISON 10',195,69);
+  line([290,24,290,46],2,'#1a1830'); line([530,24,530,46],2,'#1a1830');
+  rrect(262,46,296,44,8); ctx.fillStyle='#0d0e1f'; ctx.fill(); ctx.strokeStyle='#33f7e6'; ctx.lineWidth=2; ctx.stroke();
+  ctx.fillStyle='#33f7e6'; ctx.font='700 19px Rajdhani, sans-serif'; ctx.textAlign='center'; ctx.textBaseline='middle'; ctx.fillText('LILLE-FLANDRES  →  SAISON 10',410,69,280);
   // rame
   const open=seg(t,0.4,1.1)-seg(t,6.9,7.5);
   const ox=TRAM_X+1150*eIn(seg(t,7.7,10.9));
@@ -746,13 +773,13 @@ function drawWipe(kind,p){
    TIMELINE + LECTURE
    ========================================================================== */
 const SCENES=[
-  {d:10.4,draw:sceneStation,wipe:'tree', icon:'🚇',label:'Le départ',cap:'tout le monde monte à bord'},
-  {d:7,   draw:sceneTrain,  wipe:'hedge',icon:'🚆',label:'Train',    cap:'le groupe grandit, les parcours divergent'},
-  {d:7,   draw:sceneBus,    wipe:'cloud',icon:'🚌',label:'Bus de nuit',cap:'chacun trace sa route'},
-  {d:7,   draw:scenePlane,  wipe:'palm', icon:'✈️',label:'Avion',    cap:'les styles se sont affirmés'},
+  {d:10.4,draw:sceneStation,wipe:'tree', icon:'🚇',label:'Départ de Lille',cap:'tout le monde monte à bord'},
+  {d:3,   draw:sceneTrain,  wipe:'hedge',icon:'🚆',label:'Train',    cap:'le groupe grandit, les parcours divergent'},
+  {d:3,   draw:sceneBus,    wipe:'cloud',icon:'🚌',label:'Bus de nuit',cap:'chacun trace sa route'},
+  {d:3,   draw:scenePlane,  wipe:'palm', icon:'✈️',label:'Avion',    cap:'les styles se sont affirmés'},
   {d:16,  draw:sceneArrival,             icon:'🏡',label:'Arrivée',  cap:'Saison 10, le Club toujours réuni'}
 ];
-const WD=1.5, STARTS=[]; let TOTAL=0;
+const WD=1.1, STARTS=[]; let TOTAL=0;
 SCENES.forEach(s=>{ STARTS.push(TOTAL); TOTAL+=s.d; });
 const sceneAt=T=>{ let k=0; while(k<SCENES.length-1 && T>=STARTS[k+1]) k++; return k; };
 
