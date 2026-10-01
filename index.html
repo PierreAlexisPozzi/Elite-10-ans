@@ -747,7 +747,7 @@ function sceneArrival(t){
     ctx.shadowColor='rgba(40,10,60,.6)'; ctx.shadowBlur=14;
     ctx.font='700 54px Teko, sans-serif'; const tw=ctx.measureText('BIENVENUE À LA MAISON').width, ts=Math.min(1,560/tw);
     ctx.save(); ctx.translate(300,60); ctx.scale(ts,ts); ctx.fillStyle=hgrad(-280,280,['#ffffff','#ffd166','#ffffff']); ctx.fillText('BIENVENUE À LA MAISON',0,0); ctx.restore();
-    ctx.font='700 18px Rajdhani, sans-serif'; ctx.fillStyle='#fff4dc'; ctx.fillText('SAISON 10 · L’ÉLITE TOUJOURS RÉUNIE',300,88);
+    ctx.font='700 18px Rajdhani, sans-serif'; ctx.fillStyle='#fff4dc'; ctx.fillText('SAISON 10 · L’ÉLITE TOUJOURS RÉUNI',300,88);
     ctx.restore();
   }
 }
@@ -780,7 +780,7 @@ const SCENES=[
   {d:3,   draw:sceneTrain,  wipe:'hedge',icon:'🚆',label:'Train',    cap:'le groupe grandit, les parcours divergent'},
   {d:3,   draw:sceneBus,    wipe:'cloud',icon:'🚌',label:'Bus de nuit',cap:'chacun trace sa route'},
   {d:3,   draw:scenePlane,  wipe:'palm', icon:'✈️',label:'Avion',    cap:'les styles se sont affirmés'},
-  {d:16,  draw:sceneArrival,             icon:'🏡',label:'Arrivée',  cap:'Saison 10, l’Élite toujours réunie'}
+  {d:16,  draw:sceneArrival,             icon:'🏡',label:'Arrivée',  cap:'Saison 10, l’Élite toujours réuni'}
 ];
 const WD=1.1, STARTS=[]; let TOTAL=0;
 SCENES.forEach(s=>{ STARTS.push(TOTAL); TOTAL+=s.d; });
