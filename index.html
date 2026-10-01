@@ -125,7 +125,7 @@ footer .foot-name{font-family:var(--font-h);font-weight:700;letter-spacing:.08em
   <div class="eyebrow">NOTRE HISTOIRE</div>
   <h2>De la fac au terrain</h2>
   <div class="scene-wrap" id="jSceneWrap">
-    <canvas id="journey" role="img" aria-label="Animation : les 11 membres du Club montent dans le métro à Lille (Beffroi, Déesse de la Grand’Place, Tour de Lille, maisons flamandes), voyagent en train, en bus de nuit puis en avion, et descendent du van devant la maison du week-end."></canvas>
+    <canvas id="journey" role="img" aria-label="Animation : les 11 garçons du Club passent le panneau d’entrée de Lille et montent dans le métro à Lille (Beffroi, Déesse de la Grand’Place, Tour de Lille, maisons flamandes), voyagent en train, en bus de nuit puis en avion, et descendent du van devant la maison du week-end."></canvas>
     <div class="j-ctrl">
       <button id="jReplay" type="button" aria-label="Rejouer">↺</button>
       <button id="jPlay" type="button" aria-label="Pause">❚❚</button>
@@ -244,15 +244,15 @@ function puff(x,y,s,col){ ctx.fillStyle=col; ctx.beginPath(); for(const [dx,dy,r
 const CREW = [
   {skin:'#f3cfa9',hair:'#3a2416',style:'short',top:'#e63946',pants:'#1f2b45',shoe:'#ffffff',num:10,acc:'cap',accC:'#1b1b25'},
   {skin:'#8a5a3c',hair:'#121212',style:'curly',top:'#2ec4d6',pants:'#2b2b33',shoe:'#ffffff',num:7},
-  {skin:'#f6d2b3',hair:'#d8a24a',style:'long', top:'#ff3ea5',pants:'#33415e',shoe:'#222222',num:9},
-  {skin:'#e0ab84',hair:'#2a1a12',style:'bun',  top:'#ffc94a',pants:'#3b3b4a',shoe:'#ffffff',num:4,acc:'glasses'},
-  {skin:'#c58b62',hair:'#1a1a1a',style:'bald', top:'#7b3ff2',pants:'#1d1d28',shoe:'#ffffff',num:1,acc:'beard'},
+  {skin:'#f6d2b3',hair:'#d8a24a',style:'short',top:'#ff3ea5',pants:'#33415e',shoe:'#222222',num:9},
+  {skin:'#e0ab84',hair:'#2a1a12',style:'spiky',top:'#ffc94a',pants:'#3b3b4a',shoe:'#ffffff',num:4,acc:'glasses'},
+  {skin:'#c58b62',hair:'#1a1a1a',style:'buzz', top:'#7b3ff2',pants:'#1d1d28',shoe:'#ffffff',num:1,acc:'beard'},
   {skin:'#f1c49c',hair:'#7a3b1c',style:'spiky',top:'#2fbf71',pants:'#24324f',shoe:'#ffffff',num:8,acc:'headphones',accC:'#26262e'},
   {skin:'#6e4630',hair:'#0f0f0f',style:'short',top:'#f1f3f8',pants:'#16213a',shoe:'#e63946',num:11,acc:'beanie',accC:'#ff8c42'},
-  {skin:'#f5d6bd',hair:'#4b2c1a',style:'pony', top:'#23395d',pants:'#4a4a5c',shoe:'#ffffff',num:6},
+  {skin:'#f5d6bd',hair:'#4b2c1a',style:'buzz', top:'#23395d',pants:'#4a4a5c',shoe:'#ffffff',num:6},
   {skin:'#d79f78',hair:'#2b1b10',style:'short',top:'#ff8c42',pants:'#1f2b45',shoe:'#ffffff',num:5,acc:'glasses'},
   {skin:'#a86f4d',hair:'#161616',style:'curly',top:'#16a085',pants:'#2b2b33',shoe:'#ffffff',num:3,acc:'beard'},
-  {skin:'#f0c8a4',hair:'#b5652e',style:'long', top:'#9b59b6',pants:'#2c2c3c',shoe:'#ffffff',num:2}
+  {skin:'#f0c8a4',hair:'#b5652e',style:'short',top:'#9b59b6',pants:'#2c2c3c',shoe:'#ffffff',num:2,acc:'beard'}
 ];
 
 /* ---------- personnage articulé ----------
@@ -262,32 +262,25 @@ function limb(x0,y0,a1,l1,a2,l2,sx){ const x1=x0+Math.sin(a1)*l1*sx, y1=y0+Math.
 function drawHead(c,dir,back){
   const hy=-73, st=c.style;
   ctx.fillStyle=c.hair;
-  if(back && st==='long'){ rrect(-12.5,hy-4,25,24,10); ctx.fill(); }
-  if(!back && st==='long'){ ctx.beginPath(); ctx.ellipse(-dir*6,hy+9,8,15,0,0,TAU); ctx.fill(); }
   if(back){ ctx.fillStyle=shade(c.skin,-.1); circle(-11.5,hy+1,3); ctx.fill(); circle(11.5,hy+1,3); ctx.fill(); }
   ctx.fillStyle=c.skin; circle(0,hy,11.5); ctx.fill();
   ctx.fillStyle=c.hair;
   if(back){
-    if(st==='pony'){ ctx.beginPath(); ctx.ellipse(0,hy+13,4.5,9,0,0,TAU); ctx.fill(); }
-    if(st!=='bald'){ circle(0,hy-1.5,12); ctx.fill(); }
-    if(st==='bun'){ circle(0,hy-14,6.5); ctx.fill(); }
+    if(st==='buzz'){ ctx.globalAlpha*=.75; circle(0,hy-1.5,11.8); ctx.fill(); ctx.globalAlpha/=.75; }
+    else { circle(0,hy-1.5,12); ctx.fill(); }
     if(st==='curly'){ for(let k=0;k<10;k++){ const an=Math.PI*(0.85+k*0.145); circle(Math.cos(an)*11,hy-1+Math.sin(an)*11,4.6); ctx.fill(); } }
     if(st==='spiky'){ ctx.beginPath(); for(let k=-2;k<=2;k++){ ctx.moveTo(k*5-4,hy-10); ctx.lineTo(k*5,hy-19+Math.abs(k)*2); ctx.lineTo(k*5+4,hy-10); } ctx.fill(); }
-    if(st==='bald'){ ctx.fillStyle='rgba(255,255,255,.25)'; ctx.beginPath(); ctx.ellipse(-4,hy-6,4,2.5,-.5,0,TAU); ctx.fill(); }
   } else {
-    if(st!=='bald'){
-      ctx.beginPath(); ctx.arc(-dir*1,hy-2,12.3,Math.PI,TAU); ctx.closePath(); ctx.fill();
-      ctx.beginPath(); ctx.ellipse(-dir*6.5,hy+1,6.5,9.5,0,0,TAU); ctx.fill();
-    } else { ctx.beginPath(); ctx.ellipse(-dir*7,hy+2,4,5,0,0,TAU); ctx.fill(); }
-    if(st==='pony'){ ctx.beginPath(); ctx.ellipse(-dir*15,hy+4,4.5,9,dir*.5,0,TAU); ctx.fill(); }
-    if(st==='bun'){ circle(-dir*7,hy-12,6.5); ctx.fill(); }
+    if(st==='buzz') ctx.globalAlpha*=.75;   // coupe très courte : on devine le crâne
+    ctx.beginPath(); ctx.arc(-dir*1,hy-2,st==='buzz'?11.9:12.3,Math.PI,TAU); ctx.closePath(); ctx.fill();
+    ctx.beginPath(); ctx.ellipse(-dir*6.5,hy+1,6.5,st==='buzz'?7:9.5,0,0,TAU); ctx.fill();
+    if(st==='buzz') ctx.globalAlpha/=.75;
     if(st==='curly'){ for(let k=0;k<9;k++){ const an=Math.PI*(0.95+k*0.13); circle(-dir*1+Math.cos(an)*11,hy-1+Math.sin(an)*11,4.6); ctx.fill(); } }
     if(st==='spiky'){ ctx.beginPath(); for(let k=-2;k<=2;k++){ ctx.moveTo(k*5-4,hy-10); ctx.lineTo(k*5-dir*3,hy-20+Math.abs(k)*2); ctx.lineTo(k*5+4,hy-10); } ctx.fill(); }
     // oreille + visage
     ctx.fillStyle=shade(c.skin,-.12); circle(-dir*1.5,hy+2,2.8); ctx.fill();
     if(c.acc==='beard'){ ctx.fillStyle=c.hair; ctx.beginPath(); ctx.arc(dir*1.5,hy+2.5,10.3,0.02*Math.PI,0.98*Math.PI); ctx.closePath(); ctx.fill(); }
     ctx.fillStyle='#1b1b22'; circle(dir*3,hy+.5,1.5); ctx.fill(); circle(dir*8.6,hy+.5,1.4); ctx.fill();
-    ctx.fillStyle='rgba(255,110,120,.28)'; circle(dir*7.5,hy+4.5,2.2); ctx.fill();
     ctx.strokeStyle=c.acc==='beard'?'#f3e3d0':'#7a3b2c'; ctx.lineWidth=1.3; ctx.beginPath(); ctx.arc(dir*6,hy+4.5,2.6,0.15*Math.PI,0.85*Math.PI); ctx.stroke();
   }
   // accessoires
@@ -437,6 +430,15 @@ function drawTram(ox,t,doorOpen,boardedUntil,moving){
   ctx.restore();
 }
 
+/* panneau d'entrée d'agglomération (blanc, bordure rouge) */
+function citySign(cx,base){
+  ctx.fillStyle='rgba(0,0,0,.25)'; ctx.beginPath(); ctx.ellipse(cx,base+2,62,4,0,0,TAU); ctx.fill();
+  ctx.fillStyle=hgrad(0,8,['#8d93a6','#c9ceda']); [cx-46,cx+40].forEach(x=>{ ctx.save(); ctx.translate(x,0); ctx.fillRect(0,base-56,6,56); ctx.restore(); });
+  ctx.save(); ctx.shadowColor='rgba(0,0,0,.35)'; ctx.shadowBlur=8; ctx.shadowOffsetY=3;
+  rrect(cx-80,base-122,160,66,10); ctx.fillStyle='#ffffff'; ctx.fill(); ctx.restore();
+  rrect(cx-74,base-116,148,54,7); ctx.strokeStyle='#d81e2c'; ctx.lineWidth=6; ctx.stroke();
+  ctx.fillStyle='#111111'; ctx.font='700 36px Rajdhani, Arial, sans-serif'; ctx.textAlign='center'; ctx.textBaseline='middle'; ctx.fillText('LILLE',cx,base-88,130);
+}
 function sceneStation(t){
   // ciel d'aube
   ctx.fillStyle=vgrad(0,400,['#241f5c','#8d4384','#ff9d74','#ffd9a0']); ctx.fillRect(0,0,W,H);
@@ -458,6 +460,7 @@ function sceneStation(t){
   ctx.fillStyle=vgrad(395,H,['#a3a9bd','#5c6176']); ctx.fillRect(0,395,W,H-395);
   ctx.fillStyle='#ffd166'; ctx.fillRect(0,399,W,6);
   ctx.strokeStyle='rgba(255,255,255,.12)'; ctx.lineWidth=2; for(let x=-200;x<W+200;x+=110){ ctx.beginPath(); ctx.moveTo(x,405); ctx.lineTo(x+(x-W/2)*0.35,H); ctx.stroke(); }
+  citySign(118,398);
   // personnages
   const door=TRAM_X+DOOR_L+DOOR_W/2, list=[];
   CREW.forEach((c,i)=>{ const b=board[i];
@@ -744,7 +747,7 @@ function sceneArrival(t){
     ctx.shadowColor='rgba(40,10,60,.6)'; ctx.shadowBlur=14;
     ctx.font='700 54px Teko, sans-serif'; const tw=ctx.measureText('BIENVENUE À LA MAISON').width, ts=Math.min(1,560/tw);
     ctx.save(); ctx.translate(300,60); ctx.scale(ts,ts); ctx.fillStyle=hgrad(-280,280,['#ffffff','#ffd166','#ffffff']); ctx.fillText('BIENVENUE À LA MAISON',0,0); ctx.restore();
-    ctx.font='700 18px Rajdhani, sans-serif'; ctx.fillStyle='#fff4dc'; ctx.fillText('SAISON 10 · LE CLUB TOUJOURS RÉUNI',300,88);
+    ctx.font='700 18px Rajdhani, sans-serif'; ctx.fillStyle='#fff4dc'; ctx.fillText('SAISON 10 · L’ÉLITE TOUJOURS RÉUNI',300,88);
     ctx.restore();
   }
 }
@@ -777,7 +780,7 @@ const SCENES=[
   {d:3,   draw:sceneTrain,  wipe:'hedge',icon:'🚆',label:'Train',    cap:'le groupe grandit, les parcours divergent'},
   {d:3,   draw:sceneBus,    wipe:'cloud',icon:'🚌',label:'Bus de nuit',cap:'chacun trace sa route'},
   {d:3,   draw:scenePlane,  wipe:'palm', icon:'✈️',label:'Avion',    cap:'les styles se sont affirmés'},
-  {d:16,  draw:sceneArrival,             icon:'🏡',label:'Arrivée',  cap:'Saison 10, le Club toujours réuni'}
+  {d:16,  draw:sceneArrival,             icon:'🏡',label:'Arrivée',  cap:'Saison 10, l’Élite toujours réuni'}
 ];
 const WD=1.1, STARTS=[]; let TOTAL=0;
 SCENES.forEach(s=>{ STARTS.push(TOTAL); TOTAL+=s.d; });
