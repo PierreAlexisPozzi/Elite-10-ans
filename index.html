@@ -487,6 +487,15 @@ function ridge(off,period,base,pts,col){ ctx.fillStyle=col; ctx.beginPath(); ctx
 function tree(x,base,s,col){ ctx.fillStyle='#5b4030'; ctx.fillRect(x-4*s,base-26*s,8*s,26*s); ctx.fillStyle=col; ctx.beginPath(); for(const [dx,dy,r] of [[0,-44,20],[-14,-32,15],[14,-32,15],[0,-60,13]]){ ctx.moveTo(x+(dx+r)*s,base+dy*s); ctx.arc(x+dx*s,base+dy*s,r*s,0,TAU); } ctx.fill(); }
 function bush(x,base,s,col,col2){ ctx.fillStyle=col; ctx.beginPath(); for(const [dx,dy,r] of [[0,-30,40],[-45,-15,32],[45,-12,34],[-80,0,26],[80,2,26]]){ ctx.moveTo(x+(dx+r)*s,base+dy*s); ctx.arc(x+dx*s,base+dy*s,r*s,0,TAU); } ctx.fill(); ctx.fillStyle=col2; ctx.beginPath(); for(const [dx,dy,r] of [[-6,-42,20],[-48,-26,15],[40,-26,16]]){ ctx.moveTo(x+(dx+r)*s,base+dy*s); ctx.arc(x+dx*s,base+dy*s,r*s,0,TAU); } ctx.fill(); }
 
+/* nom de ville en lettres géantes posées sur une colline */
+function hillWord(word,cx){
+  ctx.fillStyle='#7fa3c4'; ctx.beginPath(); ctx.ellipse(cx,262,360,128,0,Math.PI,TAU); ctx.fill();
+  ctx.font='700 34px Arial, sans-serif'; ctx.textAlign='center'; ctx.textBaseline='alphabetic';
+  const step=36, x0=cx-step*(word.length-1)/2;
+  [...word].forEach((ch,i)=>{ const x=x0+i*step, dx=(x-cx)/360, y=262-128*Math.sqrt(Math.max(0,1-dx*dx))+44;
+    ctx.fillStyle='#5f7f9e'; ctx.fillRect(x-6,y-2,2,8); ctx.fillRect(x+4,y-2,2,8);
+    ctx.fillStyle='rgba(40,60,90,.35)'; ctx.fillText(ch,x+2,y+1); ctx.fillStyle='#ffffff'; ctx.fillText(ch,x,y-1); });
+}
 function sceneTrain(t){
   const X=t*680;
   ctx.fillStyle=vgrad(0,400,['#5bb6ff','#a8dcff','#e3f5ff']); ctx.fillRect(0,0,W,H);
@@ -494,6 +503,7 @@ function sceneTrain(t){
   each(X*0.03,1100,[{x:100},{x:520},{x:850}],(it,x)=>puff(x,70+(it.x%90),.9,'rgba(255,255,255,.85)'));
   ridge(X*0.05,560,300,MTN,'#9ab7d6');
   ridge(X*0.05+180,560,300,MTN.map(([f,h])=>[f,h*.55]),'#86a9cb');
+  hillWord('THESSALONIQUE',560-X*0.05);
   wave(X*0.15,330,'#86c46f',18,1/140,10,1/53);
   each(X*0.45,1000,TREES2,(it,x)=>tree(x,368,it.s,it.c));
   ctx.fillStyle='#8fcf6e'; ctx.fillRect(0,362,W,40);
@@ -545,6 +555,17 @@ const BUS_SLOTS=[218,262,320,364,422,466,524,568,626,670];
 function building(x,b,base,col,winCol){ ctx.fillStyle=col; ctx.fillRect(x,base-b.h,b.w,b.h);
   ctx.fillStyle=winCol; for(let yy=base-b.h+12;yy<base-12;yy+=17) for(let xx=x+7;xx<x+b.w-9;xx+=14) if(((xx-x)*3+yy*7+Math.floor(b.s*97))%4===0) ctx.fillRect(xx,yy,6,8); }
 
+/* enseigne lumineuse au néon sur un immeuble */
+function neonSign(word,cx,t){
+  building(cx-95,{w:190,h:200,s:.4},392,'#120e2c','rgba(255,200,120,.8)');
+  line([cx-70,192,cx-70,150],3,'#2b2b44'); line([cx+70,192,cx+70,150],3,'#2b2b44');
+  rrect(cx-112,108,224,58,8); ctx.fillStyle='#0b0a1c'; ctx.fill(); ctx.strokeStyle='#33f7e6'; ctx.lineWidth=2.5; ctx.stroke();
+  const on=0.85+0.15*Math.sin(t*23)*Math.sin(t*7);
+  ctx.save(); ctx.globalAlpha=on; ctx.shadowColor='#ff3ea5'; ctx.shadowBlur=18;
+  ctx.font='700 40px Arial, sans-serif'; ctx.textAlign='center'; ctx.textBaseline='middle'; ctx.fillStyle='#ffd3ec'; ctx.fillText(word,cx-10,138);
+  ctx.fillStyle='#ff3ea5'; ctx.beginPath(); const hx=cx+92, hy=134; ctx.moveTo(hx,hy+9); ctx.bezierCurveTo(hx-14,hy-2,hx-6,hy-12,hx,hy-4); ctx.bezierCurveTo(hx+6,hy-12,hx+14,hy-2,hx,hy+9); ctx.fill();
+  ctx.restore(); glow(cx,138,150,'#ff3ea5',.18*on);
+}
 function sceneBus(t){
   const X=t*500;
   ctx.fillStyle=vgrad(0,400,['#060620','#18113f','#3b1f5e']); ctx.fillRect(0,0,W,H);
@@ -552,6 +573,7 @@ function sceneBus(t){
   glow(820,80,120,'#f5f1d6',.35); circle(820,80,28); ctx.fillStyle='#f5f1d6'; ctx.fill(); ctx.fillStyle='rgba(0,0,0,.08)'; circle(812,74,6); ctx.fill(); circle(828,92,4); ctx.fill();
   each(X*0.08,1200,BLD_FAR,(b,x)=>building(x,b,392,'#1d1844','rgba(255,217,138,.55)'));
   each(X*0.25,1400,BLD_NEAR,(b,x)=>building(x,b,392,'#120e2c','rgba(255,200,120,.8)'));
+  neonSign('VÉRONE',660-X*0.25,t);
   // trottoir + route
   ctx.fillStyle='#2a2a40'; ctx.fillRect(0,384,W,12);
   ctx.fillStyle=vgrad(396,H,['#22223a','#141424']); ctx.fillRect(0,396,W,H-396);
@@ -597,6 +619,21 @@ const R4=rng(91);
 const CL_FAR=[...Array(6)].map((_,i)=>({x:i*200+R4()*80,y:60+R4()*120,s:.5+R4()*.5}));
 const CL_SEA=[...Array(10)].map((_,i)=>({x:i*130,y:430+R4()*30,s:1+R4()*.6}));
 const CL_NEAR=[{x:200,y:120,s:2.2},{x:1100,y:380,s:2.6}];
+/* mot dessiné en nuages : on échantillonne le texte rendu hors écran puis on pose des bouffées */
+const cloudWords={};
+function cloudWordPts(word){
+  if(cloudWords[word]) return cloudWords[word];
+  const cw=720, ch=170, c=document.createElement('canvas'); c.width=cw; c.height=ch; const g=c.getContext('2d');
+  g.font='900 120px Arial, sans-serif'; g.textAlign='center'; g.textBaseline='middle'; g.fillText(word,cw/2,ch/2+6);
+  const d=g.getImageData(0,0,cw,ch).data, r=rng(3), pts=[];
+  for(let y=0;y<ch;y+=8) for(let x=0;x<cw;x+=8) if(d[(y*cw+x)*4+3]>128) pts.push([x-cw/2+(r()-.5)*4,y-ch/2+(r()-.5)*4,6+r()*4]);
+  return (cloudWords[word]=pts);
+}
+function cloudWord(word,cx,cy,s){
+  const pts=cloudWordPts(word);
+  [['#d6e4f5',3],['#ffffff',0]].forEach(([col,o])=>{ ctx.fillStyle=col; ctx.beginPath();
+    pts.forEach(([x,y,r])=>{ const px=cx+x*s, py=cy+y*s+o, rr=r*s+(o?1:0); ctx.moveTo(px+rr,py); ctx.arc(px,py,rr,0,TAU); }); ctx.fill(); });
+}
 
 function fuselage(){ ctx.beginPath(); ctx.moveTo(140,200); ctx.lineTo(240,186); ctx.lineTo(790,186); ctx.bezierCurveTo(840,186,876,205,878,232); ctx.bezierCurveTo(876,258,846,276,790,276); ctx.lineTo(262,276); ctx.bezierCurveTo(200,276,152,242,120,206); ctx.closePath(); }
 
@@ -605,6 +642,7 @@ function scenePlane(t){
   ctx.fillStyle=vgrad(0,H,['#2a76d8','#6cb3ff','#d2ebff']); ctx.fillRect(0,0,W,H);
   glow(840,80,180,'#fffbe0',.9); circle(840,80,30); ctx.fillStyle='#fffdf0'; ctx.fill();
   each(X*0.06,1200,CL_FAR,(c,x)=>puff(x,c.y,c.s,'rgba(255,255,255,.55)'));
+  cloudWord('PRAGUE',600-X*0.12,82,0.72);
   each(X*0.3,1300,CL_SEA,(c,x)=>puff(x,c.y,c.s,'#f4f9ff'),260);
   ctx.fillStyle='#f4f9ff'; ctx.fillRect(0,470,W,30);
   // avion
