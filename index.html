@@ -317,16 +317,16 @@ function puff(x,y,s,col){ ctx.fillStyle=col; ctx.beginPath(); for(const [dx,dy,r
 /* ---------- l'effectif : 11 joueurs ---------- */
 const CREW = [
   {skin:'#f3cfa9',hair:'#3a2416',style:'short',top:'#e63946',pants:'#1f2b45',shoe:'#ffffff',num:10,acc:'cap',accC:'#1b1b25'},
-  {skin:'#8a5a3c',hair:'#121212',style:'curly',top:'#2ec4d6',pants:'#2b2b33',shoe:'#ffffff',num:7},
-  {skin:'#f6d2b3',hair:'#d8a24a',style:'short',top:'#ff3ea5',pants:'#33415e',shoe:'#222222',num:9},
-  {skin:'#e0ab84',hair:'#2a1a12',style:'spiky',top:'#ffc94a',pants:'#3b3b4a',shoe:'#ffffff',num:4,acc:'glasses'},
-  {skin:'#c58b62',hair:'#1a1a1a',style:'buzz', top:'#7b3ff2',pants:'#1d1d28',shoe:'#ffffff',num:1,acc:'beard'},
-  {skin:'#f1c49c',hair:'#7a3b1c',style:'spiky',top:'#2fbf71',pants:'#24324f',shoe:'#ffffff',num:8,acc:'headphones',accC:'#26262e'},
-  {skin:'#6e4630',hair:'#0f0f0f',style:'short',top:'#f1f3f8',pants:'#16213a',shoe:'#e63946',num:11,acc:'beanie',accC:'#ff8c42'},
+  {skin:'#c99a6e',hair:'#2a1a12',style:'curly',top:'#2ec4d6',pants:'#2b2b33',shoe:'#ffffff',num:7},
+  {skin:'#f6d2b3',hair:'#e0b65a',style:'short',top:'#ff3ea5',pants:'#33415e',shoe:'#222222',num:9},
+  {skin:'#f1c9a5',hair:'#4a2c1a',style:'spiky',top:'#ffc94a',pants:'#3b3b4a',shoe:'#ffffff',num:4,acc:'glasses'},
+  {skin:'#ecc29c',hair:'#3b2416',style:'buzz', top:'#7b3ff2',pants:'#1d1d28',shoe:'#ffffff',num:1,acc:'beard'},
+  {skin:'#f3cdaa',hair:'#d9ae55',style:'spiky',top:'#2fbf71',pants:'#24324f',shoe:'#ffffff',num:8,acc:'headphones',accC:'#26262e'},
+  {skin:'#f5d0ae',hair:'#2e1e14',style:'short',top:'#f1f3f8',pants:'#16213a',shoe:'#e63946',num:11,acc:'beanie',accC:'#ff8c42'},
   {skin:'#f5d6bd',hair:'#4b2c1a',style:'buzz', top:'#23395d',pants:'#4a4a5c',shoe:'#ffffff',num:6},
-  {skin:'#d79f78',hair:'#2b1b10',style:'short',top:'#ff8c42',pants:'#1f2b45',shoe:'#ffffff',num:5,acc:'glasses'},
-  {skin:'#a86f4d',hair:'#161616',style:'curly',top:'#16a085',pants:'#2b2b33',shoe:'#ffffff',num:3,acc:'beard'},
-  {skin:'#f0c8a4',hair:'#b5652e',style:'short',top:'#9b59b6',pants:'#2c2c3c',shoe:'#ffffff',num:2,acc:'beard'}
+  {skin:'#f0c4a0',hair:'#5a3520',style:'short',top:'#ff8c42',pants:'#1f2b45',shoe:'#ffffff',num:5,acc:'glasses'},
+  {skin:'#efc6a0',hair:'#3d2516',style:'curly',top:'#16a085',pants:'#2b2b33',shoe:'#ffffff',num:3,acc:'beard'},
+  {skin:'#f0c8a4',hair:'#d4a85a',style:'short',top:'#9b59b6',pants:'#2c2c3c',shoe:'#ffffff',num:2,acc:'beard'}
 ];
 
 /* ---------- personnage articulé ----------
@@ -382,6 +382,12 @@ function drawHead(c,dir,back,o){
   if(o.blind!==0) drawBand(dir,back,o);
 }
 
+/* inscription du maillot : « ÉLITE » au-dessus du numéro */
+function jersey(c,x,f1,f2,y1,y2,w){
+  ctx.fillStyle=lum(c.top)>0.6?'#1b1b25':'#ffffff'; ctx.textAlign='center'; ctx.textBaseline='alphabetic';
+  ctx.font='700 '+f1+'px Rajdhani, Arial, sans-serif'; ctx.fillText('ÉLITE',x,y1,w);
+  ctx.font='700 '+f2+'px Teko, Rajdhani, sans-serif'; ctx.fillText(String(c.num),x,y2,w);
+}
 function drawPerson(c,x,y,s,o){
   o=o||{};
   const pose=o.pose||'stand', ph=o.phase||0, dir=o.dir||1, back=!!o.back;
@@ -407,6 +413,7 @@ function drawPerson(c,x,y,s,o){
     armF(1,true); leg(1,true);
     rrect(-9.5,-33,19,9,3); ctx.fillStyle=pants; ctx.fill();
     rrect(-10,-61,20,34,7); ctx.fillStyle=top; ctx.fill();
+    jersey(c,dir*1.5,5.5,9,-51,-38,15);
     ctx.fillStyle=shade(top,-.15); ctx.fillRect(-10,-35,20,3);
     leg(0,false); armF(0,false);
     ctx.fillStyle=shade(skin,-.12); ctx.fillRect(-3,-65,6,6);
@@ -422,7 +429,7 @@ function drawPerson(c,x,y,s,o){
       ctx.fillStyle=c.shoe; ctx.beginPath(); ctx.ellipse(fx,fy-1,5.2,3.4,0,0,TAU); ctx.fill(); });
     rrect(-10,-33,20,9,3); ctx.fillStyle=pants; ctx.fill();
     rrect(-11.5,-61,23,34,8); ctx.fillStyle=top; ctx.fill();
-    if(back){ ctx.fillStyle=lum(top)>0.6?'#1b1b25':'#ffffff'; ctx.font='700 17px Teko, Rajdhani, sans-serif'; ctx.textAlign='center'; ctx.textBaseline='alphabetic'; ctx.fillText(String(c.num),0,-35); }
+    if(back) jersey(c,0,9,15,-49,-33,21);
     [-1,1].forEach((sx,i)=>{
       let a1=0.13, a2=0.2;
       if(cheer){ a1=2.45+0.18*Math.sin(ph*2+i); a2=2.8; }
