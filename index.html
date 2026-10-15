@@ -1227,7 +1227,18 @@ function playStep(k,t){
           if(n==='build' && rel<64) vox(t,hk[1],hk[2],hk[3]*.7,.12); }
   if(n==='build' && rel>=64 && p%2===0) vox(t,72,'a',.05,.06+.1*bp);   // voix hachée qui s'accélère
 }
+/* bande-son : extrait MP3 calé sur la timeline (drop du morceau = la maison s'allume).
+   Si le fichier ne se charge pas, on retombe sur la musique synthétisée ci-dessus. */
+const track=new Audio('audio/elite-musique.mp3'); track.preload='auto'; let useTrack=true;
+track.addEventListener('error',()=>{ useTrack=false; if(soundOn && !ac && initAudio()){ nextStep=Math.ceil(T/S16); lastT=T; } });
+function trackTick(){
+  const run=soundOn && playing && onScreen && !document.hidden;
+  if(!run){ if(!track.paused) track.pause(); return; }
+  if(Math.abs(track.currentTime-T)>.2) track.currentTime=T;          // boucle, rejouer, chapitre, dérive
+  if(track.paused){ const pr=track.play(); if(pr) pr.catch(()=>{}); }
+}
 function musicTick(){
+  if(useTrack){ trackTick(); return; }
   if(!soundOn || !ac) return;
   const run=playing && onScreen && !document.hidden;
   if(!run){ if(ac.state==='running') ac.suspend(); lastT=T; return; }
@@ -1238,8 +1249,9 @@ function musicTick(){
   while(nextStep*S16 < T+.12 && nextStep<=maxStep){ const at=ac.currentTime+Math.max(0,nextStep*S16-T)+.03; playStep(nextStep,at); nextStep++; }
 }
 btnSound.addEventListener('click',()=>{
-  if(!ac && !initAudio()) return;
+  if(!useTrack && !ac && !initAudio()) return;
   soundOn=!soundOn; btnSound.textContent=soundOn?'🔊':'🔇'; btnSound.setAttribute('aria-pressed',String(soundOn)); btnSound.setAttribute('aria-label',soundOn?'Couper le son':'Activer le son');
+  if(useTrack){ if(soundOn){ track.currentTime=T; const pr=track.play(); if(pr) pr.catch(()=>{}); if(!playing) setPlaying(true); } else track.pause(); return; }
   if(soundOn){ ac.resume(); nextStep=Math.ceil(T/S16); lastT=T; if(!playing) setPlaying(true); } else ac.suspend();
 });
 
