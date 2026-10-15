@@ -956,21 +956,24 @@ if(window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches){
    MUSIQUE — composition originale tech-house (~128 BPM), synthétisée en
    Web Audio et calée sur la timeline de l'animation. Démarre au clic sur 🔊.
    ========================================================================== */
-const BPM=128, S16=60/BPM/4, SWING=0.2;   // swing plus marqué = plus de groove
+const BPM=127, S16=60/BPM/4, SWING=0.16;   // UK tech house, swing chaud
 const btnSound=document.getElementById('jSound');
 let ac=null, bus=null, lpf=null, dly=null, noiseBuf=null, soundOn=false, nextStep=0, lastT=0;
-/* sections (en pas de double-croche depuis le début) calées sur les scènes */
 const st=t=>Math.round(t/S16);
+/* montée progressive calée sur les scènes */
 const SEC=[
-  {from:0,             name:'intro'},
-  {from:32,            name:'groove'},
-  {from:st(STARTS[1]), name:'full'},
-  {from:st(STARTS[4]), name:'break'},
-  {from:st(STARTS[4]+8.9), name:'tension'},   // les bandeaux tombent
-  {from:st(STARTS[4]+9.9), name:'drop'}       // la maison s'allume
+  {from:0,                 name:'intro1'},   // kick + basse seuls
+  {from:32,                name:'intro2'},   // + charley, shaker, clap
+  {from:st(STARTS[1]),     name:'groove'},   // + congas, rim, synthés filtrés, premières voix
+  {from:st(STARTS[3]),     name:'peak'},     // groove complet + hooks vocaux
+  {from:st(STARTS[4]),     name:'build'},    // montée : filtre, riser, roulement de caisse claire
+  {from:st(STARTS[4]+8.9), name:'tension'},  // les bandeaux tombent
+  {from:st(STARTS[4]+9.9), name:'drop'}      // la maison s'allume
 ];
+const SI=n=>SEC.find(x=>x.name===n).from;
 const secAt=k=>{ let i=0; while(i<SEC.length-1 && k>=SEC[i+1].from) i++; return SEC[i]; };
 const mtof=m=>440*Math.pow(2,(m-69)/12);
+const lerp01=(a,b,t)=>a+(b-a)*Math.max(0,Math.min(1,t));
 
 function initAudio(){
   const AC=window.AudioContext||window.webkitAudioContext; if(!AC) return false;
@@ -989,61 +992,88 @@ function noise(t,dur,type,freq,q,peak,dec,dest){ const n=ac.createBufferSource()
   const f=ac.createBiquadFilter(); f.type=type; f.frequency.value=freq; f.Q.value=q; const g=ac.createGain(); env(g,t,.001,peak,dec);
   n.connect(f); f.connect(g); g.connect(dest||bus); n.start(t); n.stop(t+dur); return f; }
 /* --- instruments --- */
-function kick(t,v){ const o=ac.createOscillator(), g=ac.createGain(); o.frequency.setValueAtTime(120,t); o.frequency.exponentialRampToValueAtTime(48,t+.08);
-  env(g,t,.002,v,.26); o.connect(g); g.connect(bus); o.start(t); o.stop(t+.5); noise(t,.02,'highpass',4000,.7,v*.25,.012); }
-function clap(t,v){ for(let k=0;k<3;k++) noise(t+k*.011,.03,'bandpass',1250,.9,v,.012); noise(t+.033,.25,'bandpass',1150,.7,v*.8,.17); }
-function hat(t,v,open){ noise(t,open?.3:.06,'highpass',7800,.8,v,open?.2:.035); }
-function shaker(t,v){ noise(t,.07,'bandpass',5600,1.4,v,.045); }
-function conga(t,f,v){ const o=ac.createOscillator(), g=ac.createGain(); o.type='sine'; o.frequency.setValueAtTime(f*1.5,t); o.frequency.exponentialRampToValueAtTime(f,t+.025);
-  env(g,t,.002,v,.2); o.connect(g); g.connect(bus); o.start(t); o.stop(t+.25); noise(t,.015,'bandpass',f*6,1,v*.3,.01); }
+function kick(t,v){ const o=ac.createOscillator(), g=ac.createGain(); o.frequency.setValueAtTime(165,t); o.frequency.exponentialRampToValueAtTime(48,t+.07);
+  env(g,t,.0015,v,.3); o.connect(g); g.connect(bus); o.start(t); o.stop(t+.36); noise(t,.015,'highpass',3500,.7,v*.35,.008); }
+function clap(t,v){ for(let k=0;k<3;k++) noise(t+k*.01,.03,'bandpass',1300,.9,v,.011); noise(t+.03,.22,'bandpass',1200,.7,v*.75,.15); }
+function snare(t,v){ noise(t,.12,'bandpass',1900,.8,v,.09); const o=ac.createOscillator(), g=ac.createGain(); o.frequency.setValueAtTime(230,t); o.frequency.exponentialRampToValueAtTime(170,t+.05); env(g,t,.001,v*.5,.06); o.connect(g); g.connect(bus); o.start(t); o.stop(t+.1); }
+function hat(t,v,open){ noise(t,open?.25:.04,'highpass',open?8500:9500,.9,v,open?.17:.022); }
+function shaker(t,v){ noise(t,.06,'bandpass',6000,1.5,v,.04); }
+function conga(t,f,v){ const o=ac.createOscillator(), g=ac.createGain(); o.frequency.setValueAtTime(f*1.5,t); o.frequency.exponentialRampToValueAtTime(f,t+.025);
+  env(g,t,.002,v,.18); o.connect(g); g.connect(bus); o.start(t); o.stop(t+.22); noise(t,.012,'bandpass',f*6,1,v*.3,.008); }
 function rim(t,v){ const o=ac.createOscillator(), g=ac.createGain(), f=ac.createBiquadFilter(); o.type='square'; o.frequency.value=1650; f.type='bandpass'; f.frequency.value=1900;
   env(g,t,.001,v,.03); o.connect(f); f.connect(g); g.connect(bus); g.connect(dly); o.start(t); o.stop(t+.06); }
-function bass(t,m,v){ const g=ac.createGain(), f=ac.createBiquadFilter(); f.type='lowpass'; f.Q.value=6;
-  f.frequency.setValueAtTime(180,t); f.frequency.exponentialRampToValueAtTime(950,t+.02); f.frequency.exponentialRampToValueAtTime(220,t+.13);
-  [['sawtooth',0],['square',-1200]].forEach(([ty,det])=>{ const o=ac.createOscillator(); o.type=ty; o.frequency.value=mtof(m); o.detune.value=det; o.connect(f); o.start(t); o.stop(t+.2); });
-  env(g,t,.004,v,.15); f.connect(g); g.connect(bus); }
-function stab(t,notes,v,len){ const g=ac.createGain(), f=ac.createBiquadFilter(); f.type='lowpass'; f.frequency.setValueAtTime(2600,t); f.frequency.exponentialRampToValueAtTime(500,t+len); f.Q.value=3;
-  notes.forEach(m=>[-7,7].forEach(dt=>{ const o=ac.createOscillator(); o.type='sawtooth'; o.frequency.value=mtof(m); o.detune.value=dt; o.connect(f); o.start(t); o.stop(t+len+.05); }));
-  env(g,t,.005,v,len); f.connect(g); g.connect(bus); g.connect(dly); }
+/* basse roulante : scie + sous-basse, enveloppe de filtre « punchy » */
+function bass(t,m,v,cut){ const g=ac.createGain(), f=ac.createBiquadFilter(); f.type='lowpass'; f.Q.value=7;
+  f.frequency.setValueAtTime(cut*.35,t); f.frequency.exponentialRampToValueAtTime(cut,t+.012); f.frequency.exponentialRampToValueAtTime(cut*.3,t+.09);
+  const o=ac.createOscillator(); o.type='sawtooth'; o.frequency.value=mtof(m); o.connect(f); o.start(t); o.stop(t+.13);
+  const sub=ac.createOscillator(), sg=ac.createGain(); sub.frequency.value=mtof(m); env(sg,t,.003,v*.9,.1); sub.connect(sg); sg.connect(bus); sub.start(t); sub.stop(t+.13);
+  env(g,t,.003,v,.1); f.connect(g); g.connect(bus); }
+/* accords filtrés */
+function stab(t,notes,v,len,cut){ const g=ac.createGain(), f=ac.createBiquadFilter(); f.type='lowpass'; f.frequency.setValueAtTime(cut,t); f.frequency.exponentialRampToValueAtTime(Math.max(200,cut*.25),t+len); f.Q.value=4;
+  notes.forEach(m=>[-8,8].forEach(dt=>{ const o=ac.createOscillator(); o.type='sawtooth'; o.frequency.value=mtof(m); o.detune.value=dt; o.connect(f); o.start(t); o.stop(t+len+.05); }));
+  env(g,t,.004,v,len); f.connect(g); g.connect(bus); g.connect(dly); }
+/* voix hachées : source glottale + 3 formants (voyelles « o », « a », « é ») */
+const FORM={o:[[450,1],[800,.6],[2830,.25]],a:[[800,1],[1150,.7],[2900,.3]],e:[[400,1],[2000,.5],[2800,.35]]};
+function vox(t,m,vw,len,v){ const src=ac.createOscillator(); src.type='sawtooth'; src.frequency.setValueAtTime(mtof(m)*1.03,t); src.frequency.exponentialRampToValueAtTime(mtof(m),t+.03);
+  const vib=ac.createOscillator(), vg=ac.createGain(); vib.frequency.value=5.5; vg.gain.value=mtof(m)*.012; vib.connect(vg); vg.connect(src.frequency);
+  const g=ac.createGain(); g.gain.setValueAtTime(.0001,t); g.gain.exponentialRampToValueAtTime(v,t+.012); g.gain.setValueAtTime(v,t+len*.7); g.gain.exponentialRampToValueAtTime(.0001,t+len);
+  FORM[vw].forEach(([fq,a])=>{ const f=ac.createBiquadFilter(); f.type='bandpass'; f.frequency.value=fq; f.Q.value=9; const fg=ac.createGain(); fg.gain.value=a*3; src.connect(f); f.connect(fg); fg.connect(g); });
+  g.connect(bus); g.connect(dly); src.start(t); vib.start(t); src.stop(t+len+.02); vib.stop(t+len+.02); }
 function crash(t,v){ noise(t,2,'highpass',3500,.5,v,1.6); }
-function riser(t,dur,v){ const f=noise(t,dur+.05,'bandpass',300,2,v,dur); f.frequency.setValueAtTime(300,t); f.frequency.exponentialRampToValueAtTime(7000,t+dur); }
-/* --- motifs (16 pas par mesure) — ligne de basse et accords originaux en la mineur --- */
-/* basse funky : syncopes, notes fantômes à l'octave, appels/réponses sur 2 mesures — [note, vélocité] */
-const BASS=[{2:[33,1],3:[45,.45],5:[33,.8],7:[36,1],10:[33,1],11:[45,.4],13:[38,.85],14:[40,.9],15:[43,.5]},
-            {2:[33,1],3:[45,.45],5:[45,.5],6:[33,.9],9:[36,.85],10:[38,1],12:[40,.7],14:[36,.9],15:[31,.8]}];
-const CHORDS=[[57,60,64,67,71],[55,59,62,65,69],[53,57,60,64,67],[52,55,59,62,64]];   // Am9, G6/9, Fmaj9, Em7
-/* congas sur 3 hauteurs avec notes fantômes */
-const CONGA={1:[330,.18],3:[330,.5],5:[260,.22],6:[200,.45],8:[330,.16],10:[330,.42],11:[260,.4],13:[330,.22],14:[200,.5],15:[260,.2]};
-function ghost(t,v){ noise(t,.05,'bandpass',2200,1.2,v,.03); }   // caisse claire fantôme
+function riser(t,dur,v){ const f=noise(t,dur+.05,'bandpass',300,2,v,dur); f.frequency.setValueAtTime(300,t); f.frequency.exponentialRampToValueAtTime(8000,t+dur); }
+function sweep(t,from,to,dur){ lpf.frequency.cancelScheduledValues(t); lpf.frequency.setValueAtTime(from,t); if(dur) lpf.frequency.exponentialRampToValueAtTime(to,t+dur); }
+
+/* --- motifs (16 pas) — originaux, la mineur --- */
+const ROOTS=[[33,33,36,31],[33,33,38,40]];                       // fondamentales par temps, sur 2 mesures
+const CHORDS=[[57,60,64,67],[55,59,62,65],[53,57,60,64],[52,55,59,62]];
+const CONGA={1:[330,.16],3:[330,.45],6:[200,.4],8:[330,.14],10:[330,.38],11:[260,.36],14:[200,.45],15:[260,.18]};
+const HOOK=[[[2,69,'o',.12],[3,72,'a',.1],[6,69,'o',.18],[10,67,'e',.1],[11,69,'a',.24]],
+            [[2,69,'o',.12],[5,76,'a',.12],[7,72,'o',.1],[10,74,'e',.15],[14,72,'a',.22]]];
+const HATV=[.05,.1,.06,.12];
 function playStep(k,t){
-  const sec=secAt(k), name=sec.name, p=(k-sec.from)%16, bar=Math.floor((k-sec.from)/16), endFade=k>=st(TOTAL-1.2)?.35:1;
+  const sec=secAt(k), n=sec.name, rel=k-sec.from, p=rel%16, bar=Math.floor(rel/16), q=p%4, beat=p>>2;
+  const fade=k>=st(TOTAL-1.2)?.35:1;
   if(p%2===1) t+=S16*SWING;
-  if(name==='break'){
-    if(p===0){ stab(t,CHORDS[bar%4],.2,S16*14); }
-    if(p%2===0) shaker(t,p%4===2?.1:.05);
-    if(p===4||p===12) hat(t,.1,true);
-    const c=CONGA[p]; if(c) conga(t,c[0],c[1]*.8);
-    const bm=BASS[0][p]; if(bm && bar%2===0) bass(t,bm[0],.2*bm[1]);
-    if(k===sec.from){ lpf.frequency.cancelScheduledValues(t); lpf.frequency.setValueAtTime(18000,t); lpf.frequency.exponentialRampToValueAtTime(650,t+S16*8); }
-    if(k===SEC[4].from-32){ riser(t,S16*32,.18); lpf.frequency.setValueAtTime(650,t); lpf.frequency.exponentialRampToValueAtTime(5000,t+S16*32); }
-    return;
-  }
-  if(name==='tension'){ const r=(k-sec.from)/(SEC[5].from-sec.from); clap(t,.15+.4*r); if(p%4===0) kick(t,.3+.25*r); return; }
-  if(k===SEC[5].from){ lpf.frequency.cancelScheduledValues(t); lpf.frequency.setValueAtTime(18000,t); crash(t,.35); }
-  if(k===0||k===SEC[2].from){ lpf.frequency.cancelScheduledValues(t); lpf.frequency.setValueAtTime(18000,t); }
-  const v=endFade;
-  if(p%4===0) kick(t,(name==='intro'?.42:.5)*v);
-  shaker(t,(p%4===2?.12:p%2?.07:.045)*v);
-  if(p%4===2) hat(t,.15*v,true); else if(p%2===1 && name!=='intro') hat(t,.045*v,false);
-  if(name==='intro'){ const c=CONGA[p]; if(c && p>4) conga(t,c[0],c[1]*.6*v); return; }
-  if(p===4||p===12) clap(t+S16*.06,.4*v);
-  if(p===7||p===13||(p===15&&bar%2)) ghost(t,.07*v);
-  const bm=BASS[bar%2][p]; if(bm) bass(t,bm[0],.46*bm[1]*v);
-  const c=CONGA[p]; if(c) conga(t,c[0]*(bar%2&&p===15?1.25:1),c[1]*(name==='groove'?.7:1)*v);
-  if(name==='groove') return;
-  if(p===7||(p===10&&bar%2)) rim(t,.09*v);
-  if(p===3||(p===6&&bar%2)||p===11) stab(t,CHORDS[Math.floor(bar/2)%4],(p===6?.08:.12)*v,.15);
-  if(name==='drop' && p===14 && bar%4===3) clap(t+S16*.5,.3*v);
+  const B=SI('build'), Tn=SI('tension'), D=SI('drop');
+  /* automation du filtre général */
+  if(k===0||k===SI('groove')) sweep(t,18000);
+  if(k===B) sweep(t,18000,1100,S16*16);
+  if(k===B+16) sweep(t,1100,12000,S16*(Tn-B-16+8));
+  if(k===D){ sweep(t,18000); crash(t,.38); vox(t,64,'a',.35,.32); }
+  if(k===B+16) riser(t,S16*(Tn-B-16+8),.2);
+
+  if(n==='tension'){ if(rel<6){ snare(t,.25+.08*rel); snare(t+S16/2,.28+.08*rel); } return; }  // roulement en triples-croches puis silence
+  const inBuild=n==='build', bp=inBuild?rel/(Tn-B):0;
+  /* grosse caisse */
+  const kickOn=!(inBuild && rel>=48);
+  if(q===0 && kickOn) kick(t,(n==='intro1'?.65:n==='drop'?.85:.75)*fade);
+  /* basse roulante (sur les 3 doubles-croches entre deux kicks) */
+  const bassOn=!(inBuild && rel>=60);
+  if(bassOn && q!==0){ const r=ROOTS[bar%2][beat], m=q===2?r+12:(bar%2&&beat===3&&q===3?r+7:r);
+    const cut=n==='intro1'?lerp01(500,1300,rel/32):inBuild?lerp01(1500,700,bp):n==='drop'?2200:1700;
+    bass(t,m,(q===2?.28:.4)*fade,cut); }
+  if(n==='intro1') return;
+  /* charleys + shaker + clap */
+  hat(t,HATV[q]*(n==='intro2'&&rel<16?.6:1)*fade,false);
+  if(q===2) hat(t,.12*fade,true);
+  shaker(t,(q===2?.08:.035)*fade);
+  if((p===4||p===12) && !(n==='intro2'&&rel<32)) clap(t+S16*.05,.4*fade);
+  /* roulement de caisse claire de la montée */
+  if(inBuild && rel>=24){ if(rel<44){ if(p%2===0) snare(t,.12+.25*bp); } else snare(t,.15+.3*bp); }
+  if(n==='intro2') return;
+  /* percussions */
+  const c=CONGA[p]; if(c && !(inBuild&&rel>=48)) conga(t,c[0]*(bar%2&&p===15?1.25:1),c[1]*(n==='groove'?.75:1)*fade);
+  if(p===7||(p===10&&bar%2)) rim(t,.08*fade);
+  if(p===13||(p===15&&bar%2)) noise(t,.05,'bandpass',2200,1.2,.06*fade,.03);
+  /* accords filtrés : le filtre s'ouvre au fil de l'animation */
+  const cut=n==='groove'?lerp01(450,1600,rel/(SI('peak')-SI('groove'))):n==='peak'?2200:inBuild?lerp01(900,7000,bp):3200;
+  if(p===3||p===11||(p===6&&bar%2)) stab(t,CHORDS[Math.floor(bar/2)%4],(p===6?.07:.11)*fade,.16,cut);
+  /* hooks vocaux hachés */
+  const hk=HOOK[bar%2].find(h=>h[0]===p);
+  if(hk){ if(n==='peak'||n==='drop') vox(t,hk[1],hk[2],hk[3],(n==='drop'?.3:.24)*fade);
+          else if(n==='groove' && k>=st(STARTS[2]) && bar%2) vox(t,hk[1],hk[2],hk[3],.16);
+          else if(inBuild && rel<40 && p<8) vox(t,hk[1],hk[2],hk[3]*.7,.14); }
+  if(inBuild && rel>=56 && q===0) vox(t,69,'a',.06,.1+.15*bp);   // hachage final « a-a-a »
 }
 function musicTick(){
   if(!soundOn || !ac) return;
