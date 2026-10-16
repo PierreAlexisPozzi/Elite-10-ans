@@ -143,11 +143,7 @@ footer .foot-name{font-family:var(--font-h);font-weight:700;letter-spacing:.08em
 .j-ctrl button:hover{border-color:var(--cyan);box-shadow:0 0 10px #33f7e688}
 .j-progress{height:3px;margin:8px 4px 2px;border-radius:2px;background:var(--line);overflow:hidden}
 .j-progress span{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--cyan),var(--pink))}
-.j-caption{text-align:center;font-family:var(--font-s);font-weight:700;font-size:14.5px;letter-spacing:.02em;color:var(--txt);min-height:22px;margin-top:12px}
-.j-dots{display:flex;justify-content:center;gap:8px;margin-top:10px}
-.j-dots button{min-width:40px;height:32px;border-radius:16px;border:1px solid var(--line);background:var(--glass);font-size:15px;cursor:pointer;opacity:.55;transition:opacity .3s,border-color .3s,box-shadow .3s}
 @media (max-width:500px){.j-ctrl{right:12px;top:12px;gap:5px}.j-ctrl button{width:28px;height:28px;font-size:11px}}
-.j-dots button.on{opacity:1;border-color:var(--cyan);box-shadow:0 0 10px #33f7e677}
 /* ---- écran d'accueil : le tap « ENTRER » débloque la musique ---- */
 .splash{position:fixed;inset:0;z-index:100;display:grid;place-items:center;padding:24px;text-align:center;
   background:radial-gradient(900px 500px at 50% 30%,#3a1a6bcc,transparent),radial-gradient(700px 400px at 50% 100%,#5c0a49aa,transparent),#050510f2;
@@ -210,8 +206,6 @@ footer .foot-name{font-family:var(--font-h);font-weight:700;letter-spacing:.08em
     </div>
     <div class="j-progress"><span id="jBar"></span></div>
   </div>
-  <div class="j-caption" id="jCaption"></div>
-  <div class="j-dots" id="jDots"></div>
 </div></section>
 
 <section><div class="wrap">
@@ -1112,7 +1106,7 @@ function render(T){
   ctx.save(); SCENES[k].draw(T-STARTS[k]); ctx.restore();
   for(let j=0;j<SCENES.length-1;j++){ const b=STARTS[j+1]; if(Math.abs(T-b)<WD/2) drawWipe(SCENES[j].wipe,(T-b)/WD+0.5); }
   postFX(k);
-  const fade=Math.max(1-seg(T,0,0.7),seg(T,TOTAL-1,TOTAL));
+  const fade=1-seg(T,0,0.7);
   if(fade>0){ ctx.fillStyle='rgba(5,5,16,'+fade+')'; ctx.fillRect(0,0,W,H); }
   const v=ctx.createRadialGradient(W/2,H/2,H*0.45,W/2,H/2,H*0.95); v.addColorStop(0,'rgba(0,0,0,0)'); v.addColorStop(1,'rgba(0,0,0,.38)'); ctx.fillStyle=v; ctx.fillRect(0,0,W,H);
 }
@@ -1120,9 +1114,9 @@ function render(T){
 let T=0, playing=true, onScreen=true, last=0;
 
 /* chapitres cliquables */
-const dots=SCENES.map((s,i)=>{ const b=document.createElement('button'); b.type='button'; b.textContent=s.icon; b.setAttribute('aria-label',s.label); b.addEventListener('click',()=>{ T=STARTS[i]+(i?WD/2:0); setPlaying(true); }); dotsEl.appendChild(b); return b; });
+const dots=[];   // chapitres retirés : seule l'animation est affichée
 let shown=-1;
-function updateUI(){ const k=sceneAt(T); if(k!==shown){ shown=k; const s=SCENES[k]; capEl.textContent=s.icon+' '+s.label+' — '+s.cap; dots.forEach((d,i)=>d.classList.toggle('on',i===k)); } barEl.style.width=(T/TOTAL*100).toFixed(2)+'%'; }
+function updateUI(){ const k=sceneAt(T); if(k!==shown){ shown=k; if(capEl){ const s=SCENES[k]; capEl.textContent=s.icon+' '+s.label+' — '+s.cap; } } barEl.style.width=(T/TOTAL*100).toFixed(2)+'%'; }
 
 /* taille nette (Retina) */
 /* qualité adaptative : si l'appareil peine (< ~45 img/s), on baisse la résolution et on coupe grain + étalonnage */
@@ -1131,7 +1125,7 @@ function resize(){ const w=canvas.clientWidth||W, dpr=Math.min(window.devicePixe
 if(window.ResizeObserver) new ResizeObserver(resize).observe(canvas); else window.addEventListener('resize',resize);
 
 function setPlaying(p){ playing=p; btnPlay.textContent=p?'❚❚':'▶'; btnPlay.setAttribute('aria-label',p?'Pause':'Lecture'); }
-btnPlay.addEventListener('click',()=>setPlaying(!playing));
+btnPlay.addEventListener('click',()=>{ if(!playing && T>=TOTAL-0.01) T=0; setPlaying(!playing); });
 btnReplay.addEventListener('click',()=>{ T=0; setPlaying(true); });
 if(window.IntersectionObserver) new IntersectionObserver(es=>{ onScreen=es[0].isIntersecting; },{threshold:0.15}).observe(canvas);
 if(window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches){ T=STARTS[4]+12; setPlaying(false); }
@@ -1300,7 +1294,7 @@ btnSound.addEventListener('click',()=>{
 
 function frame(now){
   const dt=Math.min(0.05,last?(now-last)/1000:0); last=now;
-  if(onScreen && !document.hidden){ if(playing){ T+=dt; if(T>=TOTAL) T-=TOTAL;
+  if(onScreen && !document.hidden){ if(playing){ T+=dt; if(T>=TOTAL){ T=TOTAL-0.001; setPlaying(false); }
       if(HQ && dt>0 && ++perfN>20){ perfSum+=dt; if(perfN===110 && perfSum/90>1/45){ HQ=false; if(grainEl) grainEl.style.display='none'; resize(); } } }
     render(T); updateUI(); }
   musicTick();
