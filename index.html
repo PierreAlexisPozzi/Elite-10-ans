@@ -148,9 +148,37 @@ footer .foot-name{font-family:var(--font-h);font-weight:700;letter-spacing:.08em
 .j-dots button{min-width:40px;height:32px;border-radius:16px;border:1px solid var(--line);background:var(--glass);font-size:15px;cursor:pointer;opacity:.55;transition:opacity .3s,border-color .3s,box-shadow .3s}
 @media (max-width:500px){.j-ctrl{right:12px;top:12px;gap:5px}.j-ctrl button{width:28px;height:28px;font-size:11px}}
 .j-dots button.on{opacity:1;border-color:var(--cyan);box-shadow:0 0 10px #33f7e677}
+/* ---- écran d'accueil : le tap « ENTRER » débloque la musique ---- */
+.splash{position:fixed;inset:0;z-index:100;display:grid;place-items:center;padding:24px;text-align:center;
+  background:radial-gradient(900px 500px at 50% 30%,#3a1a6bcc,transparent),radial-gradient(700px 400px at 50% 100%,#5c0a49aa,transparent),#050510f2;
+  backdrop-filter:blur(8px);transition:opacity .6s ease,visibility .6s}
+.splash.hide{opacity:0;visibility:hidden}
+.splash-in{display:flex;flex-direction:column;align-items:center;gap:10px;animation:splashIn .9s cubic-bezier(.2,.9,.3,1.2) both}
+@keyframes splashIn{from{opacity:0;transform:translateY(20px) scale(.94)}}
+.splash-logo{width:96px;height:96px;border-radius:50%;box-shadow:0 0 30px #33f7e688,0 0 60px #ff3ea555;margin-bottom:6px}
+.splash-tag{font-family:var(--font-s);font-weight:700;font-size:12px;letter-spacing:.3em;color:var(--cyan);text-shadow:0 0 12px #33f7e6aa}
+.splash-title{font-family:var(--font-h);font-weight:700;font-size:clamp(56px,16vw,96px);line-height:.9;
+  background:linear-gradient(100deg,#fff 10%,var(--cyan) 40%,var(--pink) 65%,var(--gold) 90%);-webkit-background-clip:text;background-clip:text;color:transparent;filter:drop-shadow(0 0 22px #7b3ff255)}
+.splash-date{font-family:var(--font-s);font-weight:700;letter-spacing:.12em;color:var(--txt);margin-bottom:14px}
+.splash-go{font-family:var(--font-h);font-weight:700;font-size:26px;letter-spacing:.12em;color:var(--bg);border:0;border-radius:40px;padding:14px 42px 10px;cursor:pointer;
+  background:linear-gradient(90deg,var(--cyan),var(--pink));box-shadow:0 0 24px #ff3ea577;animation:pulse 1.6s ease-in-out infinite}
+.splash-go:focus-visible{outline:3px solid #fff;outline-offset:4px}
+@keyframes pulse{50%{box-shadow:0 0 42px #ff3ea5bb,0 0 18px #33f7e6aa;transform:scale(1.04)}}
+.splash-mute{background:none;border:0;color:var(--muted);font-family:var(--font-s);font-size:13px;text-decoration:underline;cursor:pointer;padding:8px}
+@media (prefers-reduced-motion: reduce){.splash-in,.splash-go{animation:none}}
 </style>
 </head>
 <body>
+<div class="splash" id="splash" role="dialog" aria-modal="true" aria-labelledby="splashTitle">
+  <div class="splash-in">
+    <img class="splash-logo" id="splashLogo" alt="" width="96" height="96">
+    <div class="splash-tag">CLUB L'ÉLITE · WEEK-END ANNIVERSAIRE</div>
+    <div class="splash-title" id="splashTitle">SAISON 10</div>
+    <div class="splash-date">15 → 17 JANVIER 2027</div>
+    <button type="button" class="splash-go" id="splashGo">ENTRER <span aria-hidden="true">🔊</span></button>
+    <button type="button" class="splash-mute" id="splashMute">Entrer sans le son</button>
+  </div>
+</div>
 <header id="top"><div class="wrap">
   <img src="data:image/jpeg;base64,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" alt="Club L'Élite">
   <div class="name">CLUB <b>L'ÉLITE</b></div>
@@ -1254,6 +1282,21 @@ btnSound.addEventListener('click',()=>{
   if(useTrack){ if(soundOn){ track.currentTime=T; const pr=track.play(); if(pr) pr.catch(()=>{}); if(!playing) setPlaying(true); } else track.pause(); return; }
   if(soundOn){ ac.resume(); nextStep=Math.ceil(T/S16); lastT=T; if(!playing) setPlaying(true); } else ac.suspend();
 });
+
+/* écran d'accueil : on tente la lecture auto ; si le navigateur la bloque, le tap « ENTRER » la débloque */
+(function(){
+  const sp=document.getElementById('splash'); if(!sp) return;
+  const logo=document.querySelector('header img'); if(logo) document.getElementById('splashLogo').src=logo.src;
+  const html=document.documentElement; html.style.overflow='hidden';
+  const close=()=>{ sp.classList.add('hide'); html.style.overflow=''; setTimeout(()=>sp.remove(),700); };
+  const enter=withSound=>{ T=0; setPlaying(true); if(withSound && !soundOn) btnSound.click(); close();
+    setTimeout(()=>document.getElementById('jSceneWrap').scrollIntoView({behavior:'smooth',block:'center'}),250); };
+  document.getElementById('splashGo').addEventListener('click',()=>enter(true));
+  document.getElementById('splashMute').addEventListener('click',()=>enter(false));
+  document.addEventListener('keydown',e=>{ if(e.key==='Escape' && document.body.contains(sp)) enter(false); });
+  // lecture automatique déjà autorisée (site souvent visité, réglage du navigateur) : on saute l'écran
+  if(useTrack){ const probe=new Audio(track.src); probe.volume=0; const pr=probe.play(); if(pr) pr.then(()=>{ probe.pause(); if(!soundOn) btnSound.click(); close(); }).catch(()=>{}); }
+})();
 
 function frame(now){
   const dt=Math.min(0.05,last?(now-last)/1000:0); last=now;
