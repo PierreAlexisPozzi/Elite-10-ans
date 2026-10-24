@@ -155,7 +155,7 @@ header .name,header .season{white-space:nowrap}
 .j-progress{height:3px;margin:8px 4px 2px;border-radius:2px;background:var(--line);overflow:hidden}
 .j-progress span{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--cyan),var(--pink))}
 @media (max-width:500px){.j-ctrl{right:12px;top:12px;gap:5px}.j-ctrl button{width:28px;height:28px;font-size:11px}}
-/* ---- tirage t-shirt moche ---- */
+/* ---- tirage t-shirt WTF ---- */
 .santa-intro{font-family:var(--font-s);font-size:15px;color:var(--muted);margin-bottom:16px}
 .santa-intro b{color:var(--txt)}
 .santa-box{position:relative;background:linear-gradient(160deg,var(--glass),rgba(255,255,255,.02));border:1px solid var(--line);border-radius:18px;padding:20px;overflow:hidden}
@@ -286,8 +286,8 @@ header .name,header .season{white-space:nowrap}
 
 <section id="tshirt"><div class="wrap">
   <div class="eyebrow">LE TIRAGE AU SORT</div>
-  <h2>Opération t-shirt moche 👕</h2>
-  <p class="santa-intro">Chaque joueur offre <b>le t-shirt le plus moche possible</b> à un autre joueur, tiré au sort. Personne ne se tire lui-même. Choisis ton nom, entre le <b>code secret</b> reçu en message privé, et découvre ta cible. Garde-la pour toi 🤫</p>
+  <h2>Opération t-shirt WTF 👕</h2>
+  <p class="santa-intro">Chaque joueur offre <b>le t-shirt le plus WTF possible</b> à un autre joueur, tiré au sort. Personne ne se tire lui-même. Choisis ton nom, entre le <b>code secret</b> reçu en message privé, et découvre ta cible. Garde-la pour toi 🤫</p>
   <div class="santa-box" id="santaBox">
     <div class="santa-step" id="santaPick">
       <div class="santa-label">1 · Qui es-tu ?</div>
@@ -1424,7 +1424,7 @@ let this_d=0;
 requestAnimationFrame(frame);
 })();
 
-/* ---- tirage t-shirt moche : un tirage unique, chaque résultat chiffré (AES-GCM) avec le code personnel du joueur ---- */
+/* ---- tirage t-shirt WTF : un tirage unique, chaque résultat chiffré (AES-GCM) avec le code personnel du joueur ---- */
 (function(){
 const SANTA={"QUEMENER":{"s":"giKZYPy+mfVYxLnxWayRLQ==","i":"wJf3428eiYQFe8rN","c":"XDI/Xjp4Bnc4B2V3P+dIQEOtOAbvlA=="},"NAGOT":{"s":"5K5SSdW2JXEQ/I5AMikZdw==","i":"B92qqXxpUIKgN0T4","c":"SFa8LRrxMBdgr8MP7/WMsTCnTPiRrNDO"},"CHAILLOU":{"s":"y/bX1PLjLzvSG5FzVJv2zg==","i":"npMbPmmL/4CLLOdh","c":"3V5OcU73B8TWFvK2J+nafIH7ymqU"},"FERRON":{"s":"J+HJnH9XNDvSVGfuyig0Cg==","i":"uVpPtdk7ETCoxQOd","c":"I2pVwjTI5qHslfgtXn727JnQbcneHg=="},"CAZALETS":{"s":"wXkj5Col/ogQOMRKwFNEAQ==","i":"BmesrQmWcouqNLS7","c":"kEdfpKD8mJEFJX1UCNWXSvWgRJDrkLVZ"},"MEIGNANT":{"s":"y50qrCK00+7u5XqjrPygCg==","i":"bJpCws+t1lEhTFTm","c":"iIhtIYEKRuBXCTYLyYdDEMM0iDFYOLy+"},"LECLERCQ":{"s":"+cKhHeR9UH3Ws78TZYde6g==","i":"vLr78Vq391cH5d7p","c":"UFmuc+S6dKY/3RXNmaiwdkoN127A"},"ALEPEE":{"s":"VShM+g2l9Kp7ThLE87/ACw==","i":"xB+yhOlX5Namu8JK","c":"ouSh51LXMVJ4B/IJFmoCSgC1x4vGiT4L"},"POZZI":{"s":"yKg8p3dTZto/PozLsJwIMQ==","i":"5Xghac3tBn7BVigt","c":"+dq1sffrBGQ9ObFHn4NsVSnZhLiBZg=="},"ROQUIGNY":{"s":"eaIb5xTt/iRF+kuQyD3CFA==","i":"EUVFzcGTh+XnuLMU","c":"M2Ms0stF75vst4sFoXXHZNfmTYzc9A2N"},"DOUNTE":{"s":"KLS1Vy5nYLXgpVWiymsReg==","i":"k3mMASFYMifWRjto","c":"/9S6GDxZNfWcOjEgqibBuZrkU57tP0vZ"}};
 const names=Object.keys(SANTA), box=document.getElementById('santaBox'); if(!box) return;
@@ -1452,7 +1452,7 @@ function reveal(target){ const img=$('santaCard'), res=$('santaResult'), pool=na
   res.textContent='Tirage en cours…'; let k=0, delay=60; const total=reduce?0:22;
   (function step(){ if(k<total){ img.src=cardSrc(pool[k%pool.length]); img.alt=''; img.classList.remove('spin'); void img.offsetWidth; img.classList.add('spin'); k++; delay*=1.11; setTimeout(step,delay); return; }
     img.src=cardSrc(target); img.alt='Carte de '+nice(target); img.classList.remove('spin'); void img.offsetWidth; img.classList.add('won');
-    res.innerHTML='Tu offres un t-shirt moche à <b>'+nice(target)+'</b> 🎁<small>Chut, c\'est un secret !</small>'; })(); }
+    res.innerHTML='Tu offres un t-shirt WTF à <b>'+nice(target)+'</b> 🎁<small>Chut, c\'est un secret !</small>'; })(); }
 })();
 
 /* ---- barre de navigation : surligne la section visible ---- */
