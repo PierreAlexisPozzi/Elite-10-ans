@@ -144,6 +144,32 @@ footer .foot-name{font-family:var(--font-h);font-weight:700;letter-spacing:.08em
 .j-progress{height:3px;margin:8px 4px 2px;border-radius:2px;background:var(--line);overflow:hidden}
 .j-progress span{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--cyan),var(--pink))}
 @media (max-width:500px){.j-ctrl{right:12px;top:12px;gap:5px}.j-ctrl button{width:28px;height:28px;font-size:11px}}
+/* ---- tirage t-shirt moche ---- */
+.santa-intro{font-family:var(--font-s);font-size:15px;color:var(--muted);margin-bottom:16px}
+.santa-intro b{color:var(--txt)}
+.santa-box{position:relative;background:linear-gradient(160deg,var(--glass),rgba(255,255,255,.02));border:1px solid var(--line);border-radius:18px;padding:20px;overflow:hidden}
+.santa-label{font-family:var(--font-s);font-weight:700;letter-spacing:.08em;color:var(--gold);margin-bottom:12px}
+.santa-names{display:grid;grid-template-columns:repeat(auto-fill,minmax(118px,1fr));gap:8px}
+.santa-names button{font-family:var(--font-s);font-weight:700;font-size:14px;letter-spacing:.04em;color:var(--txt);background:var(--glass);border:1px solid var(--line);border-radius:12px;padding:10px 6px;cursor:pointer;transition:border-color .2s,box-shadow .2s,transform .2s}
+.santa-names button:hover,.santa-names button:focus-visible{border-color:var(--cyan);box-shadow:0 0 12px #33f7e666;transform:translateY(-2px);outline:none}
+.santa-row{display:flex;gap:8px;flex-wrap:wrap}
+.santa-row input{flex:1 1 140px;min-width:0;font-family:var(--font-h);font-size:28px;letter-spacing:.3em;text-transform:uppercase;text-align:center;color:var(--txt);background:#0d0e1f;border:1px solid var(--line);border-radius:12px;padding:8px 10px 4px}
+.santa-row input:focus{outline:none;border-color:var(--cyan);box-shadow:0 0 12px #33f7e666}
+.santa-btn{font-family:var(--font-h);font-size:22px;letter-spacing:.08em;color:var(--bg);border:0;border-radius:12px;padding:10px 20px 6px;cursor:pointer;background:linear-gradient(90deg,var(--cyan),var(--pink))}
+.santa-err{min-height:20px;margin-top:8px;font-family:var(--font-s);font-weight:700;color:var(--pink)}
+.santa-shake{animation:shake .4s}
+@keyframes shake{20%,60%{transform:translateX(-8px)}40%,80%{transform:translateX(8px)}}
+.santa-back{margin-top:10px;background:none;border:0;color:var(--muted);font-family:var(--font-s);text-decoration:underline;cursor:pointer;padding:4px 0}
+.santa-stage{display:grid;place-items:center;perspective:900px;min-height:280px}
+.santa-stage img{width:min(56vw,220px);height:auto;filter:drop-shadow(0 14px 26px #000c)}
+.santa-stage img.spin{animation:cardspin .12s linear}
+@keyframes cardspin{from{transform:rotateY(70deg) scale(.92)}}
+.santa-stage img.won{animation:cardwin .9s cubic-bezier(.2,.9,.3,1.3)}
+@keyframes cardwin{0%{transform:rotateY(180deg) scale(.7)}100%{transform:none}}
+.santa-result{text-align:center;font-family:var(--font-h);font-size:clamp(24px,6vw,34px);line-height:1.1;margin-top:12px;min-height:40px}
+.santa-result b{background:linear-gradient(90deg,var(--gold),var(--pink));-webkit-background-clip:text;background-clip:text;color:transparent}
+.santa-result small{display:block;font-family:var(--font-s);font-size:14px;color:var(--muted);margin-top:6px}
+@media (prefers-reduced-motion: reduce){.santa-stage img.spin,.santa-stage img.won{animation:none}}
 /* ---- écran d'accueil : le tap « ENTRER » débloque la musique ---- */
 .splash{position:fixed;inset:0;z-index:100;display:grid;place-items:center;padding:24px;text-align:center;
   background:radial-gradient(900px 500px at 50% 30%,#3a1a6bcc,transparent),radial-gradient(700px 400px at 50% 100%,#5c0a49aa,transparent),#050510f2;
@@ -242,6 +268,30 @@ footer .foot-name{font-family:var(--font-h);font-weight:700;letter-spacing:.08em
     <li><span class="ico">⏰</span><span>Soyez ponctuels au point de rendez-vous, le groupe part ensemble</span></li>
     <li><span class="ico">📩</span><span>Infos complémentaires (lieu de RDV, transport, planning détaillé) à venir du staff</span></li>
   </ul>
+</div></section>
+
+<section id="tshirt"><div class="wrap">
+  <div class="eyebrow">LE TIRAGE AU SORT</div>
+  <h2>Opération t-shirt moche 👕</h2>
+  <p class="santa-intro">Chaque joueur offre <b>le t-shirt le plus moche possible</b> à un autre joueur, tiré au sort. Personne ne se tire lui-même. Choisis ton nom, entre le <b>code secret</b> reçu en message privé, et découvre ta cible. Garde-la pour toi 🤫</p>
+  <div class="santa-box" id="santaBox">
+    <div class="santa-step" id="santaPick">
+      <div class="santa-label">1 · Qui es-tu ?</div>
+      <div class="santa-names" id="santaNames"></div>
+    </div>
+    <form class="santa-step" id="santaCode" hidden autocomplete="off">
+      <div class="santa-label">2 · Ton code secret, <span id="santaMe"></span></div>
+      <div class="santa-row"><input id="santaInput" maxlength="6" inputmode="text" autocapitalize="characters" spellcheck="false" placeholder="XXXXXX" aria-label="Code secret">
+        <button type="submit" class="santa-btn">Révéler 🎁</button></div>
+      <div class="santa-err" id="santaErr" role="alert"></div>
+      <button type="button" class="santa-back" id="santaBack">← changer de nom</button>
+    </form>
+    <div class="santa-step" id="santaReveal" hidden>
+      <div class="santa-stage"><img id="santaCard" alt=""></div>
+      <div class="santa-result" id="santaResult" aria-live="polite"></div>
+      <button type="button" class="santa-back" id="santaAgain">← terminé</button>
+    </div>
+  </div>
 </div></section>
 
 <section id="composition" class="lineup-page"><div class="wrap">
@@ -1358,6 +1408,37 @@ function frame(now){
 }
 let this_d=0;
 requestAnimationFrame(frame);
+})();
+
+/* ---- tirage t-shirt moche : un tirage unique, chaque résultat chiffré (AES-GCM) avec le code personnel du joueur ---- */
+(function(){
+const SANTA={"QUEMENER":{"s":"giKZYPy+mfVYxLnxWayRLQ==","i":"wJf3428eiYQFe8rN","c":"XDI/Xjp4Bnc4B2V3P+dIQEOtOAbvlA=="},"NAGOT":{"s":"5K5SSdW2JXEQ/I5AMikZdw==","i":"B92qqXxpUIKgN0T4","c":"SFa8LRrxMBdgr8MP7/WMsTCnTPiRrNDO"},"CHAILLOU":{"s":"y/bX1PLjLzvSG5FzVJv2zg==","i":"npMbPmmL/4CLLOdh","c":"3V5OcU73B8TWFvK2J+nafIH7ymqU"},"FERRON":{"s":"J+HJnH9XNDvSVGfuyig0Cg==","i":"uVpPtdk7ETCoxQOd","c":"I2pVwjTI5qHslfgtXn727JnQbcneHg=="},"CAZALETS":{"s":"wXkj5Col/ogQOMRKwFNEAQ==","i":"BmesrQmWcouqNLS7","c":"kEdfpKD8mJEFJX1UCNWXSvWgRJDrkLVZ"},"MEIGNANT":{"s":"y50qrCK00+7u5XqjrPygCg==","i":"bJpCws+t1lEhTFTm","c":"iIhtIYEKRuBXCTYLyYdDEMM0iDFYOLy+"},"LECLERCQ":{"s":"+cKhHeR9UH3Ws78TZYde6g==","i":"vLr78Vq391cH5d7p","c":"UFmuc+S6dKY/3RXNmaiwdkoN127A"},"ALEPEE":{"s":"VShM+g2l9Kp7ThLE87/ACw==","i":"xB+yhOlX5Namu8JK","c":"ouSh51LXMVJ4B/IJFmoCSgC1x4vGiT4L"},"POZZI":{"s":"yKg8p3dTZto/PozLsJwIMQ==","i":"5Xghac3tBn7BVigt","c":"+dq1sffrBGQ9ObFHn4NsVSnZhLiBZg=="},"ROQUIGNY":{"s":"eaIb5xTt/iRF+kuQyD3CFA==","i":"EUVFzcGTh+XnuLMU","c":"M2Ms0stF75vst4sFoXXHZNfmTYzc9A2N"},"DOUNTE":{"s":"KLS1Vy5nYLXgpVWiymsReg==","i":"k3mMASFYMifWRjto","c":"/9S6GDxZNfWcOjEgqibBuZrkU57tP0vZ"}};
+const names=Object.keys(SANTA), box=document.getElementById('santaBox'); if(!box) return;
+const $=id=>document.getElementById(id), nice=n=>n.charAt(0)+n.slice(1).toLowerCase();
+const cardSrc=n=>{ const im=document.querySelector('.pcard[data-name="'+n+'"] img'); return im?im.src:''; };
+let me=null;
+const show=id=>['santaPick','santaCode','santaReveal'].forEach(x=>$(x).hidden=x!==id);
+names.forEach(n=>{ const b=document.createElement('button'); b.type='button'; b.textContent=nice(n); b.addEventListener('click',()=>{ me=n; $('santaMe').textContent=nice(n); $('santaInput').value=''; $('santaErr').textContent=''; show('santaCode'); $('santaInput').focus(); }); $('santaNames').appendChild(b); });
+$('santaBack').addEventListener('click',()=>show('santaPick'));
+$('santaAgain').addEventListener('click',()=>{ $('santaCard').removeAttribute('src'); $('santaResult').textContent=''; show('santaPick'); });
+const b64=s=>Uint8Array.from(atob(s),c=>c.charCodeAt(0));
+async function decrypt(n,code){ const e=SANTA[n], enc=new TextEncoder();
+  const base=await crypto.subtle.importKey('raw',enc.encode(code),'PBKDF2',false,['deriveKey']);
+  const key=await crypto.subtle.deriveKey({name:'PBKDF2',salt:b64(e.s),iterations:150000,hash:'SHA-256'},base,{name:'AES-GCM',length:256},false,['decrypt']);
+  return new TextDecoder().decode(await crypto.subtle.decrypt({name:'AES-GCM',iv:b64(e.i)},key,b64(e.c))); }
+$('santaCode').addEventListener('submit',async ev=>{ ev.preventDefault();
+  const code=$('santaInput').value.trim().toUpperCase(), err=$('santaErr');
+  if(!window.crypto||!crypto.subtle){ err.textContent='Navigateur trop ancien pour le tirage sécurisé.'; return; }
+  if(code.length!==6){ err.textContent='Le code fait 6 caractères.'; return; }
+  err.textContent='Vérification…';
+  let target; try{ target=await decrypt(me,code); }catch(e){ err.textContent='Code incorrect 🙅'; const f=$('santaCode'); f.classList.remove('santa-shake'); void f.offsetWidth; f.classList.add('santa-shake'); return; }
+  err.textContent=''; show('santaReveal'); reveal(target); });
+function reveal(target){ const img=$('santaCard'), res=$('santaResult'), pool=names.filter(n=>n!==me);
+  const reduce=window.matchMedia&&matchMedia('(prefers-reduced-motion: reduce)').matches;
+  res.textContent='Tirage en cours…'; let k=0, delay=60; const total=reduce?0:22;
+  (function step(){ if(k<total){ img.src=cardSrc(pool[k%pool.length]); img.alt=''; img.classList.remove('spin'); void img.offsetWidth; img.classList.add('spin'); k++; delay*=1.11; setTimeout(step,delay); return; }
+    img.src=cardSrc(target); img.alt='Carte de '+nice(target); img.classList.remove('spin'); void img.offsetWidth; img.classList.add('won');
+    res.innerHTML='Tu offres un t-shirt moche à <b>'+nice(target)+'</b> 🎁<small>Chut, c\'est un secret !</small>'; })(); }
 })();
 </script>
 </body>
